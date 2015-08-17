@@ -40,14 +40,16 @@ public class EmailSTMPNotificationService implements NotificationService {
 
     @Override
     public void notify(final NotificationEntity notification, Map<String, Object> model) throws NotificationException {
-        String email = notification.getUserNotified().getPreferences().get(UserPreferences.Notification.EMAIL);
-        if (email == null) {
-            throw new NotificationException(new NotificationErrorEntity(notification, "User does not have an email to be sent"));
+        if (notification.getDestination() == null) {
+            String email = notification.getUserNotified().getPreferences().get(UserPreferences.Notification.EMAIL);
+            if (email == null) {
+                throw new NotificationException(new NotificationErrorEntity(notification, "User does not have an email to be sent"));
+            }
+            notification.setDestination(email);
         }
-        notification.setDestination(email);
         MimeMessagePreparator preparator = mimeMessage -> {
             MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
-            message.setTo(email);
+            message.setTo(notification.getDestination());
             message.setFrom(from);
             String text = templateService.parseTemplate(notification, model);
             message.setText(text, true);
