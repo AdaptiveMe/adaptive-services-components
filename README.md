@@ -3,7 +3,7 @@ Several components that can be used in distinct services for adaptive grouped in
 
 ## Notification ##
 
-To enable notification in the application the notification modules that your application will support.
+To enable notification in the application add the notification modules that your application will support.
 
 For instance, if the application supports `EMAIL` notifications and wants the `Velocity` template engine the following modules should be added.
 
