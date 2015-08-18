@@ -1,7 +1,7 @@
-Thank you for registering at Adaptive.me
+<h3>Thank you for registering at Adaptive.me</h3>
 
-You will have to activate your account in the future, but for now we're just trusting you :)
+<p>You will have to activate your account in the future, but for now we're just trusting you :)</p>
 
-Access <a href="$dashboard.url">My Adaptive</a> to start developing!
+<p>Access <a href="$dashboard.url">My Adaptive</a> to start developing!</p>
 
-Notification `$notification.id`
+<p>Notification `$notification.id`</p>
