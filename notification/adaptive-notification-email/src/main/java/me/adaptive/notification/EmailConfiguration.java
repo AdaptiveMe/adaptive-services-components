@@ -12,13 +12,13 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 @Configuration
 public class EmailConfiguration {
 
-    @Value("#{systemEnvironment.smtp.host}")
+    @Value("#{systemEnvironment.SMTP_HOST}")
     private String host;
-    @Value("#{systemEnvironment.smtp.port}")
+    @Value("#{systemEnvironment.SMTP_PORT}")
     private Integer port;
-    @Value("#{systemEnvironment.smtp.user}")
+    @Value("#{systemEnvironment.SMTP_USER}")
     private String user;
-    @Value("#{systemEnvironment.smtp.user}")
+    @Value("#{systemEnvironment.SMTP_PASSWORD}")
     private String password;
 
     @Bean
