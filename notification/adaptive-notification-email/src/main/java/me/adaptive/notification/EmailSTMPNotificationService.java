@@ -51,6 +51,7 @@ public class EmailSTMPNotificationService implements NotificationService {
             MimeMessageHelper message = new MimeMessageHelper(mimeMessage);
             message.setTo(notification.getDestination());
             message.setFrom(from);
+            message.setSubject(templateService.parseTemplateTitle(notification, model));
             String text = templateService.parseTemplate(notification, model);
             message.setText(text, true);
         };

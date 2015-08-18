@@ -17,4 +17,15 @@ public interface TemplateService {
      * @return a String with the template parsed
      */
     String parseTemplate(NotificationEntity notification, Map<String, Object> model) throws TemplateParseException;
+
+    /**
+     * Some notifications require a Title
+     * eg: Email Subjects, Push Notifications, etc
+     *
+     * @param notificationEntity
+     * @param model
+     * @return
+     * @throws TemplateParseException
+     */
+    String parseTemplateTitle(NotificationEntity notificationEntity, Map<String, Object> model) throws TemplateParseException;
 }

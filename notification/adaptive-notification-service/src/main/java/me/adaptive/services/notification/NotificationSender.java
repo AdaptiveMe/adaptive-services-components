@@ -31,10 +31,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -95,12 +95,12 @@ public class NotificationSender {
     }
 
 
-    @Scheduled(fixedDelay = 2 * 60 * 1000)
-        // x * 60 * 1000 where x = minutes
+    @Scheduled(fixedDelay = 60000)
+        //sends notifications every minute
     void sendNotifications() {
         LOGGER.info("Sending pending notifications");
         for (NotificationChannel channel : notificationServices.keySet()) {
-            executorService.submit(new NotificationTask(channel));
+            executorService.submit(new NotificationChannelTask(channel));
 
             try {
                 executorService.awaitTermination(NOTIFICATION_MAX_EXEC_TIME_MIN, TimeUnit.MINUTES);
@@ -110,50 +110,53 @@ public class NotificationSender {
         }
     }
 
+    @SuppressWarnings("unused")
+    @Async
+    public void releaseNotification(NotificationEntity notification) {
+        doReleaseNotification(notification);
+    }
 
-    private class NotificationTask implements Runnable {
+    private void doReleaseNotification(NotificationEntity notification) {
+        for (NotificationService service : notificationServices.get(notification.getChannel())) {
+            try {
+                notification.setStatus(NotificationStatus.QUEUED);
+                notification = notificationRepository.save(notification);
+                service.notify(notification, new HashMap<>()); //TODO add stuff to the model depending on the notification event & channel
+                notification.setSentDate(DateTime.now().toDate());
+                notification.setStatus(NotificationStatus.SENT);
+                LOGGER.info("Notification {} sent to the channel {} trough the service {} ", notification.getId(), notification.getChannel(), service.getServiceId());
+            } catch (NotificationException e) {
+                LOGGER.info("Error sending Notification {} sent to the channel {} trough the service {} ", notification.getId(), notification.getChannel(), service.getServiceId());
+                if (!NotificationStatus.SENT.equals(notification.getStatus())) { //Only set as an error if the notification did not succeed for any other channel
+                    notification.setStatus(NotificationStatus.ERROR);
+                }
+                if (e.getNotificationError().isPresent()) { //The error still should be persisted in any case
+                    notificationErrorRepository.save(e.getNotificationError().get());
+                }
+            }
+        }
+        notificationRepository.save(notification);
+    }
+
+    private class NotificationChannelTask implements Runnable {
 
         NotificationChannel channel;
 
-        public NotificationTask(NotificationChannel channel) {
+        public NotificationChannelTask(NotificationChannel channel) {
             this.channel = channel;
-        }
-
-        @Transactional
-        void notifyNow() {
-            LOGGER.info("Sending notifications for channel {}", channel.toString());
-            PageRequest pageRequest = new PageRequest(0, NOTIFICATION_BATCH);
-            Page<NotificationEntity> page = notificationRepository.findByChannelAndStatus(channel, NotificationStatus.CREATED, pageRequest);
-            //TODO maybe we need to queue these notifications now if we want multiple notifications servers in the future
-            for (NotificationEntity notification : page) {
-                LOGGER.info("A total of {} notifications will be sent in this batch for channel {}", page.getNumberOfElements(), channel.toString());
-                for (NotificationService service : notificationServices.get(channel)) {
-                    try {
-                        service.notify(notification, new HashMap<>()); //TODO add stuff to the model depending on the notification event & channel
-                        notification.setStatus(NotificationStatus.QUEUED);
-                        notification = notificationRepository.save(notification);
-                        notification.setSentDate(DateTime.now().toDate());
-                        notification.setStatus(NotificationStatus.SENT);
-                        LOGGER.info("Notification {} sent to the channel {} trough the service {} ", notification.getId(), channel, service.getServiceId());
-                    } catch (NotificationException e) {
-                        LOGGER.info("Error sending Notification {} sent to the channel {} trough the service {} ", notification.getId(), channel, service.getServiceId());
-                        if (!NotificationStatus.SENT.equals(notification.getStatus())) { //Only set as an error if the notification did not succeed for any other channel
-                            notification.setStatus(NotificationStatus.ERROR);
-                        }
-                        if (e.getNotificationError().isPresent()) { //The error still should be persisted in any case
-                            notificationErrorRepository.save(e.getNotificationError().get());
-                        }
-                    }
-                }
-                notificationRepository.save(notification);
-            }
         }
 
         @Override
         public void run() {
-            notifyNow(); //for the Transactional
+            LOGGER.info("Sending notifications for channel {}", channel.toString());
+            PageRequest pageRequest = new PageRequest(0, NOTIFICATION_BATCH);
+            Page<NotificationEntity> page = notificationRepository.findByChannelAndStatus(channel, NotificationStatus.CREATED, pageRequest);
+            //TODO maybe we need to queue these notifications now if we want multiple notifications servers in the future
+            LOGGER.info("A total of {} notifications will be sent in this batch for channel {}", page.getNumberOfElements(), channel.toString());
+            for (NotificationEntity notification : page) {
+                doReleaseNotification(notification);
+            }
         }
     }
-
 
 }
