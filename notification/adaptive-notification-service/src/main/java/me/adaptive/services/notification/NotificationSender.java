@@ -52,10 +52,13 @@ public class NotificationSender {
     private static final Logger LOGGER = LoggerFactory.getLogger(NotificationSender.class);
 
     private static final int NOTIFICATION_BATCH = 100;
+    private static final long NOTIFICATION_MAX_EXEC_TIME_MIN = 10;
 
 
     Map<NotificationChannel, Collection<NotificationService>> notificationServices = new HashMap<>();
 
+    @Autowired(required = false)
+    Collection<NotificationService> services;
 
     ExecutorService executorService;
 
@@ -65,8 +68,7 @@ public class NotificationSender {
     NotificationErrorRepository notificationErrorRepository;
 
     @PostConstruct
-    @Autowired(required = false)
-    void init(Collection<NotificationService> services) {
+    void init() {
         LOGGER.info("Initializing");
         if (!CollectionUtils.isEmpty(services)) {
             executorService = Executors.newFixedThreadPool(services.size(), new CustomizableThreadFactory("NOTIFICATION-"));
@@ -99,6 +101,12 @@ public class NotificationSender {
         LOGGER.info("Sending pending notifications");
         for (NotificationChannel channel : notificationServices.keySet()) {
             executorService.submit(new NotificationTask(channel));
+
+            try {
+                executorService.awaitTermination(NOTIFICATION_MAX_EXEC_TIME_MIN, TimeUnit.MINUTES);
+            } catch (InterruptedException e) {
+                LOGGER.warn("Could not send notifications in {} minutes, this most likely will cause overlapping of notifications", NOTIFICATION_MAX_EXEC_TIME_MIN);
+            }
         }
     }
 
