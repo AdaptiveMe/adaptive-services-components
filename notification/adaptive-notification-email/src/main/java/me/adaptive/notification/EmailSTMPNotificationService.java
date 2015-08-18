@@ -23,7 +23,7 @@ import java.util.Map;
 @Service
 public class EmailSTMPNotificationService implements NotificationService {
 
-    @Value("#{systemEnvironment.smtp.from}")
+    @Value("#{environment.SMTP_FROM}")
     String from;
     @Autowired
     TemplateService templateService;
