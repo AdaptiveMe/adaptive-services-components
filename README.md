@@ -19,7 +19,30 @@ For instance, if the application supports `EMAIL` notifications and wants the `V
             <version>${adaptive.services.compoments.version}</version>
         </dependency>
 ```
+You can then AutoWire the NotificationSender and send Notifications as follows
 
+```
+@Service
+public class MyService{
+    @Autowired
+    NotificationSender notificationSender;
+    
+    void doSomething(){
+     //Something happened in your code and a notification needs to be sent
+      NotificationEntity notificationEntity = new NotificationEntity();
+      notificationEntity.setStatus(NotificationStatus.CREATED);
+      notificationEntity.setUserNotified(userEntity);
+      notificationEntity.setEvent(NotificationEvent.USER_REGISTERED);
+      notificationEntity.setChannel(NotificationChannel.EMAIL);
+      notificationEntity.setDestination("someemail@somedomain.com");
+      notificationSender.releaseNotification(notificationEntity);
+      //the releaseNotification can be ommited if you're persisting the notification
+      //a scheduled job sends pending notifications every minute
+    
+    }
+
+}
+```
 
 ## TODO ##
 
