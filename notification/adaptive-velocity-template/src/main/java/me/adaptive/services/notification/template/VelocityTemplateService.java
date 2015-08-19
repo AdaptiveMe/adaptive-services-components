@@ -23,11 +23,11 @@ public class VelocityTemplateService implements TemplateService {
 
 
     private String getTemplateLocation(NotificationEntity notification) {
-        return notification.getChannel().name().toLowerCase() + File.separator + notification.getEvent().name().toLowerCase() + ".vm";
+        return notification.getChannel().name().toLowerCase() + File.separator + notification.getEvent().toLowerCase() + ".vm";
     }
 
     private String getTemplateTitleLocation(NotificationEntity notification) {
-        return notification.getChannel().name().toLowerCase() + File.separator + notification.getEvent().name().toLowerCase() + TITLE_SUFFIX + ".vm";
+        return notification.getChannel().name().toLowerCase() + File.separator + notification.getEvent().toLowerCase() + TITLE_SUFFIX + ".vm";
 
     }
 
