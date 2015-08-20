@@ -7,6 +7,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
+import java.util.Properties;
+
 /**
  * Created by panthro on 17/08/15.
  */
@@ -31,7 +33,19 @@ public class EmailConfiguration {
         sender.setPassword(password);
         sender.setDefaultEncoding("UTF-8");
         sender.setPort(port);
+        sender.setJavaMailProperties(getJavaMailProperties());
         return sender;
+    }
+
+    private Properties getJavaMailProperties() {
+        Properties properties = new Properties();
+        properties.put("mail.smtp.socketFactory.port", port);
+        properties.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+        properties.put("mail.smtp.socketFactory.fallback", "false");
+        properties.put("mail.smtp.timeout", 25000);
+        properties.put("mail.smtp.auth", true);
+        properties.put("mail.smtp.starttls.enable", true);
+        return properties;
     }
 
 }
