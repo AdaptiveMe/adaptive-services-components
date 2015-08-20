@@ -48,7 +48,7 @@ public class EmailSTMPNotificationServiceTest {
         notification.setChannel(NotificationChannel.EMAIL);
         notification.setStatus(NotificationStatus.CREATED);
         notification.setEvent(NotificationEvent.USER_REGISTERED);
-        notification.setDestination("user@domain.com");
+        notification.setDestination("test@adaptive.me");
         emailSTMPNotificationService.notify(notification, new HashMap<>());
     }
 }
