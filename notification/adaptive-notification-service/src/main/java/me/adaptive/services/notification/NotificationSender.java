@@ -163,10 +163,8 @@ public class NotificationSender {
             Page<NotificationEntity> page = notificationRepository.findByChannelAndStatus(channel, NotificationStatus.CREATED, pageRequest);
             //TODO maybe we need to queue these notifications now if we want multiple notifications servers in the future
             LOGGER.info("A total of {} notifications will be sent in this batch for channel {}", page.getNumberOfElements(), channel.toString());
-            Map<String, Object> myMap = new HashMap<>();
-            SystemSettingHolder.getAll().values().stream().forEach(s -> myMap.put(s.getKey(), s));
             for (NotificationEntity notification : page) {
-                doReleaseNotification(notification, myMap);
+                doReleaseNotification(notification, new HashMap<>(SystemSettingHolder.getAll()));
             }
         }
     }
