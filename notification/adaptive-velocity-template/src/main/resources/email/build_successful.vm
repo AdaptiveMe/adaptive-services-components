@@ -1,0 +1,16 @@
+<h3>Grab your files, your build has finished</h3>
+<p>Did you request a build? I guess you did.</p>
+
+<p>And guess what!? We DID IT, and we did it well!</p>
+
+<p>You can grab your files here:</p>
+<ul>
+	#foreach ($mapEntry in $filesMap.entrySet())
+        <li><a href="$mapEntry.value">$mapEntry.key</a></li>
+	#end
+</ul>
+
+<p>Do you want a log?! Ok, that's not asking too much...here you go</p>
+<p><a href="$logUrl">$logName</a></p>
+
+#parse("/fragments/footer.vm")

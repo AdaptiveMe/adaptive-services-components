@@ -7,6 +7,8 @@ import me.adaptive.core.data.domain.NotificationEntity;
 import me.adaptive.core.data.domain.types.NotificationChannel;
 import me.adaptive.core.data.domain.types.NotificationEvent;
 import me.adaptive.core.data.domain.types.NotificationStatus;
+import me.adaptive.core.data.util.SystemSettingHolder;
+import me.adaptive.services.notification.error.NotificationException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,6 +33,8 @@ public class EmailSTMPNotificationServiceTest {
     EmailSTMPNotificationService emailSTMPNotificationService;
     GreenMail mailServer;
 
+    String destination = "test@adaptive.me";
+
     @Before
     public void setUp() {
         mailServer = new GreenMail(new ServerSetup(6060, null, "smtp"));
@@ -44,11 +48,30 @@ public class EmailSTMPNotificationServiceTest {
 
     @Test
     public void testNotifyUserRegistered() throws Exception {
+        notifyEvent(NotificationEvent.USER_REGISTERED);
+    }
+
+    @Test
+    public void testNotifyBuildSuccessful() throws Exception {
+        notifyEvent(NotificationEvent.BUILD_SUCCESSFUL);
+    }
+
+    @Test
+    public void testNotifyBuildFailed() throws Exception {
+        notifyEvent(NotificationEvent.BUILD_FAILED);
+    }
+
+    @Test
+    public void testNotifyBuildCancelled() throws Exception {
+        notifyEvent(NotificationEvent.BUILD_CANCELLED);
+    }
+
+    private void notifyEvent(String eventName) throws NotificationException {
         NotificationEntity notification = new NotificationEntity();
         notification.setChannel(NotificationChannel.EMAIL);
         notification.setStatus(NotificationStatus.CREATED);
-        notification.setEvent(NotificationEvent.USER_REGISTERED);
-        notification.setDestination("test@adaptive.me");
-        emailSTMPNotificationService.notify(notification, new HashMap<>());
+        notification.setEvent(eventName);
+        notification.setDestination(destination);
+        emailSTMPNotificationService.notify(notification, new HashMap<>(SystemSettingHolder.getAll()));
     }
 }

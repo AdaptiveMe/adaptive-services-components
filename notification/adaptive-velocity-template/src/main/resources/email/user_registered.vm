@@ -2,6 +2,6 @@
 
 <p>You will have to activate your account in the future, but for now we're just trusting you :)</p>
 
-<p>Access <a href="$dashboard.url">My Adaptive</a> to start developing!</p>
+<p>Access <a href="$dashboard_url.value">My Adaptive</a> to start developing!</p>
 
-<p>Notification `$notification.id`</p>
+#parse("/fragments/footer.vm")

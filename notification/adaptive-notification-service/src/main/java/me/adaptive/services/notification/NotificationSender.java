@@ -23,6 +23,7 @@ import me.adaptive.core.data.domain.types.NotificationChannel;
 import me.adaptive.core.data.domain.types.NotificationStatus;
 import me.adaptive.core.data.repo.NotificationErrorRepository;
 import me.adaptive.core.data.repo.NotificationRepository;
+import me.adaptive.core.data.util.SystemSettingHolder;
 import me.adaptive.services.notification.error.NotificationException;
 import org.apache.commons.collections4.CollectionUtils;
 import org.joda.time.DateTime;
@@ -113,15 +114,24 @@ public class NotificationSender {
     @SuppressWarnings("unused")
     @Async
     public void releaseNotification(NotificationEntity notification) {
-        doReleaseNotification(notification);
+        doReleaseNotification(notification, new HashMap<>());
     }
 
-    private void doReleaseNotification(NotificationEntity notification) {
+    @SuppressWarnings("unused")
+    @Async
+    /**
+     * Releases the given notification with the given model
+     */
+    public void releaseNotification(NotificationEntity notification, Map model) {
+        doReleaseNotification(notification, model);
+    }
+
+    private void doReleaseNotification(NotificationEntity notification, Map<String, Object> model) {
         for (NotificationService service : notificationServices.get(notification.getChannel())) {
             try {
                 notification.setStatus(NotificationStatus.QUEUED);
                 notification = notificationRepository.save(notification);
-                service.notify(notification, new HashMap<>()); //TODO add stuff to the model depending on the notification event & channel
+                service.notify(notification, model);
                 notification.setSentDate(DateTime.now().toDate());
                 notification.setStatus(NotificationStatus.SENT);
                 LOGGER.info("Notification {} sent to the channel {} trough the service {} ", notification.getId(), notification.getChannel(), service.getServiceId());
@@ -153,8 +163,10 @@ public class NotificationSender {
             Page<NotificationEntity> page = notificationRepository.findByChannelAndStatus(channel, NotificationStatus.CREATED, pageRequest);
             //TODO maybe we need to queue these notifications now if we want multiple notifications servers in the future
             LOGGER.info("A total of {} notifications will be sent in this batch for channel {}", page.getNumberOfElements(), channel.toString());
+            Map<String, Object> myMap = new HashMap<>();
+            SystemSettingHolder.getAll().values().stream().forEach(s -> myMap.put(s.getKey(), s));
             for (NotificationEntity notification : page) {
-                doReleaseNotification(notification);
+                doReleaseNotification(notification, myMap);
             }
         }
     }
