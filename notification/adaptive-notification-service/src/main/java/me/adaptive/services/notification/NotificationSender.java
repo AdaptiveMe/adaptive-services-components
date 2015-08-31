@@ -127,6 +127,7 @@ public class NotificationSender {
     }
 
     private void doReleaseNotification(NotificationEntity notification, Map<String, Object> model) {
+        model = addCommonSettings(model);
         for (NotificationService service : notificationServices.get(notification.getChannel())) {
             try {
                 notification.setStatus(NotificationStatus.QUEUED);
@@ -146,6 +147,15 @@ public class NotificationSender {
             }
         }
         notificationRepository.save(notification);
+    }
+
+    private Map<String, Object> addCommonSettings(Map<String, Object> model) {
+        if (model == null) {
+            model = new HashMap<>(SystemSettingHolder.getAll());
+        } else {
+            model.putAll(SystemSettingHolder.getAll());
+        }
+        return model;
     }
 
     private class NotificationChannelTask implements Runnable {
