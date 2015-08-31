@@ -66,6 +66,11 @@ public class EmailSTMPNotificationServiceTest {
         notifyEvent(NotificationEvent.BUILD_CANCELLED);
     }
 
+    @Test
+    public void testNotifyForgotPassword() throws Exception {
+        notifyEvent(NotificationEvent.FORGOT_PASSWORD);
+    }
+
     private void notifyEvent(String eventName) throws NotificationException {
         NotificationEntity notification = new NotificationEntity();
         notification.setChannel(NotificationChannel.EMAIL);
