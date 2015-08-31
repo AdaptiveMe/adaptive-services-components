@@ -1,7 +1,8 @@
+#parse("/fragments/header.vm")
 <h3>Grab your files, your build has finished</h3>
 <p>Did you request a build? I guess you did.</p>
 
-<p>And guess what!? We DID IT, and we did it well!</p>
+<p>And guess what!? We MADE IT, and we made it well!</p>
 
 <p>You can grab your files here:</p>
 <ul>

@@ -1,3 +1,4 @@
+#parse("/fragments/header.vm")
 <h3>Oh no! What happened? Your build has failed</h3>
 <p>But it died with honor.</p>
 

@@ -1,3 +1,4 @@
+#parse("/fragments/header.vm")
 <h3>Thank you for registering at Adaptive.me</h3>
 
 <p>You will have to activate your account in the future, but for now we're just trusting you :)</p>
