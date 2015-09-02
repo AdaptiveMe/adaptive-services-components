@@ -1,1 +1,1 @@
-Your build $build.id has been cancelled!
+The build of $build.projectName for [$build.platform] was $build.status.name()

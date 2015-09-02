@@ -1,1 +1,1 @@
-We're sorry, your build $build.id has failed!
+The build of $build.projectName for [$build.platform] was $build.status.name()

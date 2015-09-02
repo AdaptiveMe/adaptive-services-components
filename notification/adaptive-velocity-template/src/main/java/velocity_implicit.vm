@@ -1,2 +1,3 @@
 #* @implicitly included *#
+#* @vtlvariable name="build" type="me.adaptive.core.data.domain.BuildRequestEntity" *#
 #* @vtlvariable name="notification" type="me.adaptive.core.data.domain.NotificationEntity" *#
